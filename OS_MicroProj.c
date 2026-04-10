@@ -44,13 +44,13 @@ void link(){
         scanf("%d", &links[i]);
     }
     for (int i = 0; i < size; i++) {
-        if (memory[link[i]]==1){
+        if (memory[links[i]-1]==1){
             printf("Allocation Failed (Blocks not free)\n");
             return;
        }
     }
-    for (int i = start-1; i < start + size; i++) {
-        memory[links[i]] = 1;
+    for (int i = 0; i < size; i++) {
+        memory[links[i]-1] = 1;
     }
     disp();
 }

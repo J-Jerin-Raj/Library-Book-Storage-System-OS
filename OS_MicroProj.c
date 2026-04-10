@@ -1,8 +1,11 @@
 #include <stdio.h>
 
 #define memsize 50
-int memory[memsize] = {0};
 
+int memory[memsize] = {0};   // stores book IDs (0 = free)
+int bookID = 1;              // auto-increment book ID
+
+// Display memory
 void disp() {
     printf("\nMemory Blocks:\n");
     for (int i = 0; i < memsize; i++) {
@@ -11,63 +14,81 @@ void disp() {
     printf("\n");
 }
 
-//Cont
-void conti(){
-  int start, size;
+// Contiguous Allocation
+void conti() {
+    int start, size;
 
-    printf("Enter starting block and size: ");
+    printf("Enter starting index and size: ");
     scanf("%d %d", &start, &size);
-    
+
+    if (start < 0 || start + size > memsize) {
+        printf("Invalid range\n");
+        return;
+    }
+
     for (int i = start; i < start + size; i++) {
-        if (memory[i]==1 || start+size > memsize){
+        if (memory[i] != 0) {
             printf("Allocation Failed (Blocks not free)\n");
             return;
         }
     }
+
     for (int i = start; i < start + size; i++) {
-        memory[i] = 1;
+        memory[i] = bookID;
     }
-    printf("Contiguous Allocation Successful\n");
+
+    printf("Contiguous Allocation Successful for Book ID: %d\n", bookID++);
     disp();
 }
 
-//Link
-void link(){
-    int size;
-    int links[memsize];
+// Linked Allocation
+void link() {
+    int size, links[memsize];
 
     printf("Enter number of blocks: ");
     scanf("%d", &size);
 
-    printf("Enter block numbers: ");
+    if (size <= 0 || size > memsize) {
+        printf("Invalid size\n");
+        return;
+    }
+
+    printf("Enter block indices: ");
     for (int i = 0; i < size; i++) {
         scanf("%d", &links[i]);
-    }
-    for (int i = 0; i < size; i++) {
-        if (memory[links[i]]==1 || memory[links[i]] > memsize || size > memsize){
-            printf("Allocation Failed (Blocks not free)\n");
+
+        if (links[i] < 0 || links[i] >= memsize) {
+            printf("Invalid index\n");
             return;
-       }
+        }
+
+        if (memory[links[i]] != 0) {
+            printf("Allocation Failed (Block not free)\n");
+            return;
+        }
     }
+
     for (int i = 0; i < size; i++) {
-        memory[links[i]] = 1;
+        memory[links[i]] = bookID;
     }
+
+    printf("Linked Allocation Successful for Book ID: %d\n", bookID++);
     disp();
 }
 
+// Indexed Allocation
 void indexA() {
-    int index, size;
-    int blocks[memsize];
+    int index, size, blocks[memsize];
 
     printf("Enter index block: ");
     scanf("%d", &index);
 
-    if (index < 1 || index > memsize) {
+    if (index < 0 || index >= memsize) {
         printf("Invalid index block\n");
         return;
     }
 
-    if (memory[index] == 1) {
+    if (memory[index] != 0) {
         printf("Index block already allocated\n");
         return;
     }
@@ -80,63 +101,79 @@ void indexA() {
         return;
     }
 
-    printf("Enter block numbers: ");
+    printf("Enter block indices: ");
     for (int i = 0; i < size; i++) {
         scanf("%d", &blocks[i]);
 
-        // Validate each block
-        if (blocks[i] < 1 || blocks[i] > memsize) {
-            printf("Invalid block number\n");
+        if (blocks[i] < 0 || blocks[i] >= memsize) {
+            printf("Invalid index\n");
             return;
         }
 
-        if (memory[blocks[i]] == 1) {
+        if (memory[blocks[i]] != 0) {
             printf("Allocation Failed (Block not free)\n");
             return;
         }
     }
 
-    // Allocate index block
-    memory[index] = 1;
+    // allocate index block
+    memory[index] = bookID;
 
-    // Allocate data blocks
+    // allocate data blocks
     for (int i = 0; i < size; i++) {
-        memory[blocks[i] - 1] = 1;
+        memory[blocks[i]] = bookID;
     }
 
-    printf("Indexed Allocation Successful\n");
+    printf("Indexed Allocation Successful for Book ID: %d\n", bookID++);
     disp();
 }
 
-// Main function
+// Deallocation
+void deallocate() {
+    int id;
+    printf("Enter Book ID to remove: ");
+    scanf("%d", &id);
+
+    int found = 0;
+    for (int i = 0; i < memsize; i++) {
+        if (memory[i] == id) {
+            memory[i] = 0;
+            found = 1;
+        }
+    }
+
+    if (found)
+        printf("Book ID %d removed successfully\n", id);
+    else
+        printf("Book ID not found\n");
+
+    disp();
+}
+
+// Main
 int main() {
     int choice;
-    while (1) {
-        printf("\n--- Library Storage System ---\n");
-        printf("1) Contiguous Allocation\n2) Linked Allocation\n3) Indexed Allocation\n4) Display Memory\n5) Exit\n");
 
-        for (int i=0;i<1;i++) {
-            printf("Enter choice: ");
-            scanf("%d", &choice);
-            if (choice == 1) {
-                conti();
-            }
-            else if (choice == 2) {
-                link();
-            }
-            else if (choice == 3) {
-                indexA();
-            }
-            else if (choice == 4) {
-                disp();
-            }
-            else if (choice == 5) {
-                return 0;
-            }
-            else {
-                printf("Invalid Input\n");
-                i=-1;
-            }
+    while (1) {
+        printf("\n--- Library Book Storage System ---\n");
+        printf("1) Contiguous Allocation\n");
+        printf("2) Linked Allocation\n");
+        printf("3) Indexed Allocation\n");
+        printf("4) Display Memory\n");
+        printf("5) Deallocate Book\n");
+        printf("6) Exit\n");
+
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: conti(); break;
+            case 2: link(); break;
+            case 3: indexA(); break;
+            case 4: disp(); break;
+            case 5: deallocate(); break;
+            case 6: return 0;
+            default: printf("Invalid Input\n");
         }
     }
 }

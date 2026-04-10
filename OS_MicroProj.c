@@ -31,6 +31,30 @@ void conti(){
     disp();
 }
 
+//Link
+void link(){
+    int size;
+    int links[memsize];
+
+    printf("Enter number of blocks: ");
+    scanf("%d", &size);
+
+    printf("Enter block numbers: ");
+    for (int i = 0; i < size; i++) {
+        scanf("%d", &links[i]);
+    }
+    for (int i = 0; i < size; i++) {
+        if (memory[link[i]]==1){
+            printf("Allocation Failed (Blocks not free)\n");
+            return;
+       }
+    }
+    for (int i = start-1; i < start + size; i++) {
+        memory[links[i]] = 1;
+    }
+    disp();
+}
+
 // Main function
 int main() {
     int choice;
@@ -45,7 +69,7 @@ int main() {
                 conti();
             }
             else if (choice == 2) {
-                // link();
+                link();
             }
             else if (choice == 3) {
                 // index();

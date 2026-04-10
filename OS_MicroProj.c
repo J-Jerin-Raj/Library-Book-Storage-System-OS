@@ -11,6 +11,26 @@ void disp() {
     printf("\n");
 }
 
+//Cont
+void conti(){
+  int start, size;
+
+    printf("Enter starting block and size: ");
+    scanf("%d %d", &start, &size);
+    
+    for (int i = start-1; i < start + size; i++) {
+        if (memory[i]==1 || start+size-1 > memsize){
+            printf("Allocation Failed (Blocks not free)\n");
+            return;
+        }
+    }
+    for (int i = start-1; i < start + size; i++) {
+        memory[i] = 1;
+    }
+    printf("Contiguous Allocation Successful\n");
+    disp();
+}
+
 // Main function
 int main() {
     int choice;
@@ -22,7 +42,7 @@ int main() {
             printf("Enter choice: ");
             scanf("%d", &choice);
             if (choice == 1) {
-                // conti();
+                conti();
             }
             else if (choice == 2) {
                 // link();

@@ -18,13 +18,13 @@ void conti(){
     printf("Enter starting block and size: ");
     scanf("%d %d", &start, &size);
     
-    for (int i = start-1; i < start + size; i++) {
-        if (memory[i]==1 || start+size-1 > memsize){
+    for (int i = start; i < start + size; i++) {
+        if (memory[i]==1 || start+size > memsize){
             printf("Allocation Failed (Blocks not free)\n");
             return;
         }
     }
-    for (int i = start-1; i < start + size; i++) {
+    for (int i = start; i < start + size; i++) {
         memory[i] = 1;
     }
     printf("Contiguous Allocation Successful\n");
@@ -44,13 +44,13 @@ void link(){
         scanf("%d", &links[i]);
     }
     for (int i = 0; i < size; i++) {
-        if (memory[links[i]-1]==1 || size > memsize){
+        if (memory[links[i]]==1 || memory[links[i]] > memsize || size > memsize){
             printf("Allocation Failed (Blocks not free)\n");
             return;
        }
     }
     for (int i = 0; i < size; i++) {
-        memory[links[i]-1] = 1;
+        memory[links[i]] = 1;
     }
     disp();
 }
@@ -67,7 +67,7 @@ void indexA() {
         return;
     }
 
-    if (memory[index - 1] == 1) {
+    if (memory[index] == 1) {
         printf("Index block already allocated\n");
         return;
     }
@@ -90,14 +90,14 @@ void indexA() {
             return;
         }
 
-        if (memory[blocks[i] - 1] == 1) {
+        if (memory[blocks[i]] == 1) {
             printf("Allocation Failed (Block not free)\n");
             return;
         }
     }
 
     // Allocate index block
-    memory[index - 1] = 1;
+    memory[index] = 1;
 
     // Allocate data blocks
     for (int i = 0; i < size; i++) {

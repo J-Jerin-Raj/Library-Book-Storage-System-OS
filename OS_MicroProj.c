@@ -107,11 +107,6 @@ void indexA() {
     printf("Enter Book ID: ");
     scanf("%d", &id);
 
-    if (exists(id)) {
-        printf("Book ID already exists\n");
-        return;
-    }
-
     printf("Enter index block: ");
     scanf("%d", &index);
 
@@ -125,7 +120,7 @@ void indexA() {
         return;
     }
 
-    printf("Enter number of blocks: ");
+    printf("Enter number of data blocks: ");
     scanf("%d", &size);
 
     if (size <= 0 || size > memsize) {
@@ -133,28 +128,40 @@ void indexA() {
         return;
     }
 
-    printf("Enter block indices: ");
+    printf("Enter data block indices: ");
     for (int i = 0; i < size; i++) {
         scanf("%d", &blocks[i]);
 
         if (blocks[i] < 0 || blocks[i] >= memsize) {
-            printf("Invalid index\n");
+            printf("Invalid block index\n");
             return;
         }
 
         if (memory[blocks[i]] != 0) {
-            printf("Allocation Failed\n");
+            printf("Allocation Failed (Block already used)\n");
             return;
         }
     }
 
+    // Allocate index block
     memory[index] = id;
 
+    // Allocate data blocks
     for (int i = 0; i < size; i++) {
         memory[blocks[i]] = id;
     }
 
-    printf("Indexed Allocation Successful for Book ID: %d\n", id);
+    printf("\nIndexed Allocation Successful\n");
+    printf("Book ID: %d\n", id);
+    printf("Index Block: %d\n", index);
+    printf("Data Blocks: ");
+
+    for (int i = 0; i < size; i++) {
+        printf("%d ", blocks[i]);
+    }
+
+    printf("\n");
+
     disp();
 }
 

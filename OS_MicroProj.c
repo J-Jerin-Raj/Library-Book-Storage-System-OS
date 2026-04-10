@@ -1,20 +1,22 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <string.h>
 
 #define memsize 50
 
 int memory[memsize] = {0};
+
 GtkWidget *output;
 
-// helper to show output
-void show_msg(char *msg) {
+// Show message
+void show_msg(const char *msg) {
     gtk_label_set_text(GTK_LABEL(output), msg);
 }
 
-// display memory
-void disp() {
+// Display memory
+void disp(GtkButton *btn, gpointer data) {
     static char buffer[2000];
-    char temp[10];
+    char temp[20];
 
     buffer[0] = '\0';
 
@@ -26,9 +28,28 @@ void disp() {
     gtk_label_set_text(GTK_LABEL(output), buffer);
 }
 
-// CONTIGUOUS (GUI version)
+// Check duplicate book ID
+int exists(int id) {
+    for (int i = 0; i < memsize; i++) {
+        if (memory[i] == id)
+            return 1;
+    }
+    return 0;
+}
+
+// Contiguous Allocation
 void conti(GtkButton *btn, gpointer data) {
-    int start = 2, size = 3; // demo fixed (you can add input fields later)
+    int start = 2, size = 3, id = 101;
+
+    if (exists(id)) {
+        show_msg("Book ID already exists");
+        return;
+    }
+
+    if (start < 0 || start + size > memsize) {
+        show_msg("Invalid range");
+        return;
+    }
 
     for (int i = start; i < start + size; i++) {
         if (memory[i] != 0) {
@@ -38,18 +59,29 @@ void conti(GtkButton *btn, gpointer data) {
     }
 
     for (int i = start; i < start + size; i++) {
-        memory[i] = 1;
+        memory[i] = id;
     }
 
-    show_msg("Contiguous Allocation Done");
+    show_msg("Contiguous Allocation Successful");
 }
 
-// LINKED (GUI version)
-void link(GtkButton *btn, gpointer data) {
+// LINKED ALLOCATION (RENAMED FIXED FUNCTION)
+void link_alloc(GtkButton *btn, gpointer data) {
+    int id = 202;
     int blocks[] = {5, 10, 15};
     int size = 3;
 
+    if (exists(id)) {
+        show_msg("Book ID already exists");
+        return;
+    }
+
     for (int i = 0; i < size; i++) {
+        if (blocks[i] < 0 || blocks[i] >= memsize) {
+            show_msg("Invalid index");
+            return;
+        }
+
         if (memory[blocks[i]] != 0) {
             show_msg("Linked Allocation Failed");
             return;
@@ -57,39 +89,45 @@ void link(GtkButton *btn, gpointer data) {
     }
 
     for (int i = 0; i < size; i++) {
-        memory[blocks[i]] = 1;
+        memory[blocks[i]] = id;
     }
 
-    show_msg("Linked Allocation Done");
+    show_msg("Linked Allocation Successful");
 }
 
-// INDEXED (GUI version)
+// INDEXED ALLOCATION
 void indexA(GtkButton *btn, gpointer data) {
+    int id = 303;
     int index = 0;
     int blocks[] = {1, 2, 3};
     int size = 3;
 
-    if (memory[index] != 0) {
-        show_msg("Index Block Already Used");
+    if (exists(id)) {
+        show_msg("Book ID already exists");
         return;
     }
 
-    memory[index] = 1;
-
-    for (int i = 0; i < size; i++) {
-        memory[blocks[i]] = 1;
+    if (memory[index] != 0) {
+        show_msg("Index block already used");
+        return;
     }
 
-    show_msg("Indexed Allocation Done [0 -> 1,2,3]");
+    memory[index] = id;
+
+    for (int i = 0; i < size; i++) {
+        memory[blocks[i]] = id;
+    }
+
+    show_msg("[0 -> 1,2,3] Indexed Allocation Done");
 }
 
-// UI setup
+// GTK UI
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Library Storage System");
-    gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), 600, 400);
 
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_add(GTK_CONTAINER(window), box);
@@ -99,7 +137,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *btn3 = gtk_button_new_with_label("Indexed Allocation");
     GtkWidget *btn4 = gtk_button_new_with_label("Display Memory");
 
-    output = gtk_label_new("Output will appear here");
+    output = gtk_label_new("Output here");
 
     gtk_box_pack_start(GTK_BOX(box), btn1, FALSE, FALSE, 5);
     gtk_box_pack_start(GTK_BOX(box), btn2, FALSE, FALSE, 5);
@@ -110,12 +148,11 @@ int main(int argc, char *argv[]) {
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     g_signal_connect(btn1, "clicked", G_CALLBACK(conti), NULL);
-    g_signal_connect(btn2, "clicked", G_CALLBACK(link), NULL);
+    g_signal_connect(btn2, "clicked", G_CALLBACK(link_alloc), NULL);  // FIXED HERE
     g_signal_connect(btn3, "clicked", G_CALLBACK(indexA), NULL);
     g_signal_connect(btn4, "clicked", G_CALLBACK(disp), NULL);
 
     gtk_widget_show_all(window);
-
     gtk_main();
 
     return 0;

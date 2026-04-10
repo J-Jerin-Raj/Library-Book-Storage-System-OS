@@ -1,216 +1,122 @@
+#include <gtk/gtk.h>
 #include <stdio.h>
 
 #define memsize 50
 
 int memory[memsize] = {0};
+GtkWidget *output;
 
-// Display memory
+// helper to show output
+void show_msg(char *msg) {
+    gtk_label_set_text(GTK_LABEL(output), msg);
+}
+
+// display memory
 void disp() {
-    printf("\nMemory Blocks:\n");
+    static char buffer[2000];
+    char temp[10];
+
+    buffer[0] = '\0';
+
     for (int i = 0; i < memsize; i++) {
-        printf("%d ", memory[i]);
+        sprintf(temp, "%d ", memory[i]);
+        strcat(buffer, temp);
     }
-    printf("\n");
+
+    gtk_label_set_text(GTK_LABEL(output), buffer);
 }
 
-// Check if book already exists
-int exists(int id) {
-    for (int i = 0; i < memsize; i++) {
-        if (memory[i] == id)
-            return 1;
-    }
-    return 0;
-}
-
-// Contiguous Allocation
-void conti() {
-    int start, size, id;
-
-    printf("Enter Book ID: ");
-    scanf("%d", &id);
-
-    if (exists(id)) {
-        printf("Book ID already exists\n");
-        return;
-    }
-
-    printf("Enter starting index and size: ");
-    scanf("%d %d", &start, &size);
-
-    if (start < 0 || start + size > memsize) {
-        printf("Invalid range\n");
-        return;
-    }
+// CONTIGUOUS (GUI version)
+void conti(GtkButton *btn, gpointer data) {
+    int start = 2, size = 3; // demo fixed (you can add input fields later)
 
     for (int i = start; i < start + size; i++) {
         if (memory[i] != 0) {
-            printf("Allocation Failed\n");
+            show_msg("Contiguous Allocation Failed");
             return;
         }
     }
 
     for (int i = start; i < start + size; i++) {
-        memory[i] = id;
+        memory[i] = 1;
     }
 
-    printf("Contiguous Allocation Successful for Book ID: %d\n", id);
-    disp();
+    show_msg("Contiguous Allocation Done");
 }
 
-// Linked Allocation
-void link() {
-    int size, id, links[memsize];
+// LINKED (GUI version)
+void link(GtkButton *btn, gpointer data) {
+    int blocks[] = {5, 10, 15};
+    int size = 3;
 
-    printf("Enter Book ID: ");
-    scanf("%d", &id);
-
-    if (exists(id)) {
-        printf("Book ID already exists\n");
-        return;
-    }
-
-    printf("Enter number of blocks: ");
-    scanf("%d", &size);
-
-    if (size <= 0 || size > memsize) {
-        printf("Invalid size\n");
-        return;
-    }
-
-    printf("Enter block indices: ");
     for (int i = 0; i < size; i++) {
-        scanf("%d", &links[i]);
-
-        if (links[i] < 0 || links[i] >= memsize) {
-            printf("Invalid index\n");
-            return;
-        }
-
-        if (memory[links[i]] != 0) {
-            printf("Allocation Failed\n");
+        if (memory[blocks[i]] != 0) {
+            show_msg("Linked Allocation Failed");
             return;
         }
     }
 
     for (int i = 0; i < size; i++) {
-        memory[links[i]] = id;
+        memory[blocks[i]] = 1;
     }
 
-    printf("Linked Allocation Successful for Book ID: %d\n", id);
-    disp();
+    show_msg("Linked Allocation Done");
 }
 
-// Indexed Allocation
-void indexA() {
-    int index, size, id, blocks[memsize];
-
-    printf("Enter Book ID: ");
-    scanf("%d", &id);
-
-    printf("Enter index block: ");
-    scanf("%d", &index);
-
-    if (index < 0 || index >= memsize) {
-        printf("Invalid index block\n");
-        return;
-    }
+// INDEXED (GUI version)
+void indexA(GtkButton *btn, gpointer data) {
+    int index = 0;
+    int blocks[] = {1, 2, 3};
+    int size = 3;
 
     if (memory[index] != 0) {
-        printf("Index block already allocated\n");
+        show_msg("Index Block Already Used");
         return;
     }
 
-    printf("Enter number of data blocks: ");
-    scanf("%d", &size);
-
-    if (size <= 0 || size > memsize) {
-        printf("Invalid size\n");
-        return;
-    }
-
-    printf("Enter data block indices: ");
-    for (int i = 0; i < size; i++) {
-        scanf("%d", &blocks[i]);
-
-        if (blocks[i] < 0 || blocks[i] >= memsize) {
-            printf("Invalid block index\n");
-            return;
-        }
-
-        if (memory[blocks[i]] != 0) {
-            printf("Allocation Failed (Block already used)\n");
-            return;
-        }
-    }
-
-    // Allocate index block
-    memory[index] = id;
-
-    // Allocate data blocks
-    for (int i = 0; i < size; i++) {
-        memory[blocks[i]] = id;
-    }
-
-    printf("\nIndexed Allocation Successful\n");
-    printf("Book ID: %d\n", id);
-    printf("Index Block: %d\n", index);
-    printf("Data Blocks: ");
+    memory[index] = 1;
 
     for (int i = 0; i < size; i++) {
-        printf("%d ", blocks[i]);
+        memory[blocks[i]] = 1;
     }
 
-    printf("\n");
-
-    disp();
+    show_msg("Indexed Allocation Done [0 -> 1,2,3]");
 }
 
-// Deallocation
-void deallocate() {
-    int id;
-    printf("Enter Book ID to remove: ");
-    scanf("%d", &id);
+// UI setup
+int main(int argc, char *argv[]) {
+    gtk_init(&argc, &argv);
 
-    int found = 0;
-    for (int i = 0; i < memsize; i++) {
-        if (memory[i] == id) {
-            memory[i] = 0;
-            found = 1;
-        }
-    }
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Library Storage System");
+    gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
 
-    if (found)
-        printf("Book ID %d removed successfully\n", id);
-    else
-        printf("Book ID not found\n");
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(window), box);
 
-    disp();
-}
+    GtkWidget *btn1 = gtk_button_new_with_label("Contiguous Allocation");
+    GtkWidget *btn2 = gtk_button_new_with_label("Linked Allocation");
+    GtkWidget *btn3 = gtk_button_new_with_label("Indexed Allocation");
+    GtkWidget *btn4 = gtk_button_new_with_label("Display Memory");
 
-// Main
-int main() {
-    int choice;
+    output = gtk_label_new("Output will appear here");
 
-    while (1) {
-        printf("\n--- Library Book Storage System ---\n");
-        printf("1) Contiguous Allocation\n");
-        printf("2) Linked Allocation\n");
-        printf("3) Indexed Allocation\n");
-        printf("4) Display Memory\n");
-        printf("5) Deallocate Book\n");
-        printf("6) Exit\n");
+    gtk_box_pack_start(GTK_BOX(box), btn1, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(box), btn2, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(box), btn3, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(box), btn4, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(box), output, TRUE, TRUE, 5);
 
-        printf("Enter choice: ");
-        scanf("%d", &choice);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-        switch (choice) {
-            case 1: conti(); break;
-            case 2: link(); break;
-            case 3: indexA(); break;
-            case 4: disp(); break;
-            case 5: deallocate(); break;
-            case 6: return 0;
-            default: printf("Invalid Input\n");
-        }
-    }
+    g_signal_connect(btn1, "clicked", G_CALLBACK(conti), NULL);
+    g_signal_connect(btn2, "clicked", G_CALLBACK(link), NULL);
+    g_signal_connect(btn3, "clicked", G_CALLBACK(indexA), NULL);
+    g_signal_connect(btn4, "clicked", G_CALLBACK(disp), NULL);
+
+    gtk_widget_show_all(window);
+
+    gtk_main();
+
+    return 0;
 }

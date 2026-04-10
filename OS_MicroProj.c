@@ -3,6 +3,14 @@
 #define memsize 50
 int memory[memsize] = {0};
 
+void disp() {
+    printf("\nMemory Blocks:\n");
+    for (int i = 0; i < memsize; i++) {
+        printf("%d ", memory[i]);
+    }
+    printf("\n");
+}
+
 // Main function
 int main() {
     int choice;
@@ -23,7 +31,7 @@ int main() {
                 // index();
             }
             else if (choice == 4) {
-                // disp();
+                disp();
             }
             else if (choice == 5) {
                 return 0;

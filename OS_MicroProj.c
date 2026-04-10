@@ -2,8 +2,7 @@
 
 #define memsize 50
 
-int memory[memsize] = {0};   // stores book IDs (0 = free)
-int bookID = 1;              // auto-increment book ID
+int memory[memsize] = {0};
 
 // Display memory
 void disp() {
@@ -14,9 +13,26 @@ void disp() {
     printf("\n");
 }
 
+// Check if book already exists
+int exists(int id) {
+    for (int i = 0; i < memsize; i++) {
+        if (memory[i] == id)
+            return 1;
+    }
+    return 0;
+}
+
 // Contiguous Allocation
 void conti() {
-    int start, size;
+    int start, size, id;
+
+    printf("Enter Book ID: ");
+    scanf("%d", &id);
+
+    if (exists(id)) {
+        printf("Book ID already exists\n");
+        return;
+    }
 
     printf("Enter starting index and size: ");
     scanf("%d %d", &start, &size);
@@ -28,22 +44,30 @@ void conti() {
 
     for (int i = start; i < start + size; i++) {
         if (memory[i] != 0) {
-            printf("Allocation Failed (Blocks not free)\n");
+            printf("Allocation Failed\n");
             return;
         }
     }
 
     for (int i = start; i < start + size; i++) {
-        memory[i] = bookID;
+        memory[i] = id;
     }
 
-    printf("Contiguous Allocation Successful for Book ID: %d\n", bookID++);
+    printf("Contiguous Allocation Successful for Book ID: %d\n", id);
     disp();
 }
 
 // Linked Allocation
 void link() {
-    int size, links[memsize];
+    int size, id, links[memsize];
+
+    printf("Enter Book ID: ");
+    scanf("%d", &id);
+
+    if (exists(id)) {
+        printf("Book ID already exists\n");
+        return;
+    }
 
     printf("Enter number of blocks: ");
     scanf("%d", &size);
@@ -63,22 +87,30 @@ void link() {
         }
 
         if (memory[links[i]] != 0) {
-            printf("Allocation Failed (Block not free)\n");
+            printf("Allocation Failed\n");
             return;
         }
     }
 
     for (int i = 0; i < size; i++) {
-        memory[links[i]] = bookID;
+        memory[links[i]] = id;
     }
 
-    printf("Linked Allocation Successful for Book ID: %d\n", bookID++);
+    printf("Linked Allocation Successful for Book ID: %d\n", id);
     disp();
 }
 
 // Indexed Allocation
 void indexA() {
-    int index, size, blocks[memsize];
+    int index, size, id, blocks[memsize];
+
+    printf("Enter Book ID: ");
+    scanf("%d", &id);
+
+    if (exists(id)) {
+        printf("Book ID already exists\n");
+        return;
+    }
 
     printf("Enter index block: ");
     scanf("%d", &index);
@@ -111,20 +143,18 @@ void indexA() {
         }
 
         if (memory[blocks[i]] != 0) {
-            printf("Allocation Failed (Block not free)\n");
+            printf("Allocation Failed\n");
             return;
         }
     }
 
-    // allocate index block
-    memory[index] = bookID;
+    memory[index] = id;
 
-    // allocate data blocks
     for (int i = 0; i < size; i++) {
-        memory[blocks[i]] = bookID;
+        memory[blocks[i]] = id;
     }
 
-    printf("Indexed Allocation Successful for Book ID: %d\n", bookID++);
+    printf("Indexed Allocation Successful for Book ID: %d\n", id);
     disp();
 }
 

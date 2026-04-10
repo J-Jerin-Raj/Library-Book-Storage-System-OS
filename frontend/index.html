@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Book Storage System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box
+  -sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --bg2: #ece7db;
+    --bg3: #e0d9cc;
+    --ink: #1a1612;
+    --ink2: #4a4037;
+    --ink3: #7a6e60;
+    --amber: #b5620a;
+    --amber-l: #f0c060;
+    --amber-ll: #fdf0d0;
+    --navy: #1a2644;
+    --navy2: #243560;
+    --navy-l: #e4e8f4;
+    --red: #8b2020;
+    --red-l: #fdecea;
+    --green: #1d5e2f;
+    --green-l: #e6f4ea;
+    --border: rgba(26,22,18,0.15);
+    --border2: rgba(26,22,18,0.08);
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Libre Baskerville', Georgia, serif;
+    --sans: 'Barlow', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 0 2rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 3px solid var(--amber);
+  }
+  .header-brand {
+    padding: 1.2rem 2rem 1.2rem 0;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .header-brand .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber-l);
+    opacity: 0.85;
+  }
+  .header-brand h1 {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .header-brand .subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: var(--mono);
+  }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+  .stat-chip {
+    text-align: center;
+    padding: 0 1rem;
+    border-left: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-chip .num {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--amber-l);
+    display: block;
+  }
+  .stat-chip .lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.45);
+    display: block;
+  }
+
+  /* ── TABS ── */
+  nav.tabs {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    gap: 0;
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink3);
+    background: none;
+    border: none;
+    padding: 0.9rem 1.2rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.02em;
+  }
+  nav.tabs button:hover { color: var(--ink); }
+  nav.tabs button.active {
+    color: var(--navy);
+    border-bottom-color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 3rem;
+  }
+
+  /* ── SEARCH BAR ── */
+  .search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 220px;
+    position: relative;
+  }
+  .search-box svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    stroke: var(--ink3);
+    fill: none;
+    pointer-events: none;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 0.6rem 0.9rem 0.6rem 2.2rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus { border-color: var(--navy2); }
+  .search-box input::placeholder { color: var(--ink3); }
+  select.filter-sel {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink2);
+    cursor: pointer;
+    outline: none;
+  }
+  .btn {
+    padding: 0.6rem 1.1rem;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+  .btn-primary:hover { background: var(--navy2); }
+  .btn-amber {
+    background: var(--amber);
+    color: #fff;
+    border-color: var(--amber);
+  }
+  .btn-amber:hover { background: #a05508; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink2);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg3); }
+  .btn-danger {
+    background: var(--red-l);
+    color: var(--red);
+    border-color: rgba(139,32,32,0.2);
+    font-size: 12px;
+    padding: 0.3rem 0.7rem;
+  }
+  .btn-danger:hover { background: #f9d9d9; }
+
+  /* ── PANELS ── */
+  .panel {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-head {
+    background: var(--bg2);
+    padding: 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .panel-head h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink2);
+    font-weight: 500;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--navy-l);
+    color: var(--navy2);
+    font-weight: 500;
+  }
+  .badge-amber {
+    background: var(--amber-ll);
+    color: var(--amber);
+  }
+  .badge-green {
+    background: var(--green-l);
+    color: var(--green);
+  }
+  .badge-red {
+    background: var(--red-l);
+    color: var(--red);
+  }
+
+  /* ── MAIN GRID ── */
+  .grid-main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media(max-width:900px) {
+    .grid-main { grid-template-columns: 1fr; }
+  }
+
+  /* ── BOOK TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr { background: var(--bg2); border-bottom: 1px solid var(--border); }
+  thead th {
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink3);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: var(--ink); }
+  thead th .sort-arrow { font-size: 10px; margin-left: 4px; }
+  tbody tr {
+    border-bottom: 1px solid var(--border2);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: #fffdf8; }
+  tbody tr.highlighted { background: #fffbea; }
+  tbody td {
+    padding: 0.65rem 0.9rem;
+    vertical-align: middle;
+  }
+  td.sr { font-family: var(--mono); font-size: 12px; color: var(--ink3); }
+  td.title-cell { font-weight: 500; color: var(--ink); max-width: 200px; }
+  td.title-cell span.author { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink3); font-style: italic; }
+  td.alloc-cell { font-family: var(--mono); font-size: 11px; }
+  .no-results {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--ink3);
+    font-size: 14px;
+  }
+  .no-results strong { display: block; font-size: 1.1rem; color: var(--ink2); margin-bottom: 4px; }
+
+  /* ── MEMORY VISUALIZER ── */
+  .mem-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+    padding: 0.8rem;
+  }
+  .mem-block {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    transition: transform 0.15s;
+    cursor: default;
+    border: 1px solid transparent;
+  }
+  .mem-block:hover { transform: scale(1.15); z-index: 2; position: relative; }
+  .mem-block.free { background: var(--bg2); color: var(--ink3); border-color: var(--border); }
+  .mem-block.used { color: #fff; }
+
+  /* ── SIDE INFO ── */
+  .info-card {
+    background: var(--amber-ll);
+    border: 1px solid rgba(181,98,10,0.15);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .info-card h4 {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  .info-card p {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.55;
+  }
+  .method-detail {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.6;
+  }
+  .method-detail li { margin-left: 1rem; margin-bottom: 4px; }
+
+  /* ── ALLOC LEGEND ── */
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0.8rem;
+    border-top: 1px solid var(--border2);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--ink2);
+    font-family: var(--mono);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── ADD BOOK FORM ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 1rem;
+  }
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .form-field.full { grid-column: 1 / -1; }
+  .form-field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink3);
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+  .form-field input,
+  .form-field select {
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--bg);
+    outline: none;
+  }
+  .form-field input:focus,
+  .form-field select:focus { border-color: var(--navy2); background: #fff; }
+  .form-actions {
+    padding: 0 1rem 1rem;
+    display: flex;
+    gap: 8px;
+  }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,8,6,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 540px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    animation: modalIn 0.18s ease;
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform: translateY(-12px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .modal-head {
+    background: var(--navy);
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-head h3 {
+    font-family: var(--serif);
+    color: #fff;
+    font-size: 1rem;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 0;
+  }
+  .modal-close:hover { color: #fff; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--navy);
+    color: #fff;
+    padding: 0.75rem 1.2rem;
+    border-radius: 6px;
+    font-size: 13.5px;
+    border-left: 4px solid var(--amber-l);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.25s ease;
+    z-index: 200;
+    font-family: var(--sans);
+    max-width: 300px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── ALLOCATION VIEWS ── */
+  .section-tab { display: none; }
+  .section-tab.active { display: block; }
+
+  .chain-vis {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .chain-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
+  }
+  .chain-node {
+    min-width: 90px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: #fff;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+  .chain-arrow {
+    width: 28px;
+    text-align: center;
+    color: var(--ink3);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .chain-null {
+    background: var(--bg3);
+    color: var(--ink3);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    border: 1px dashed var(--border);
+  }
+
+  .index-table {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px;
+    padding: 1rem;
+  }
+  .index-block {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 12px;
+    font-family: var(--mono);
+    height: fit-content;
+  }
+  .index-block-head {
+    background: var(--navy);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .index-entry {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .index-entry:last-child { border-bottom: none; }
+  .ptr { color: var(--amber); }
+
+  .blocks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px;
+    padding: 1rem;
+  }
+  .data-block {
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: #fff;
+    line-height: 1.4;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .data-block .blk-id { font-weight: 500; font-size: 10px; opacity: 0.8; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <span class="eyebrow">OS Project &mdash; File Allocation</span>
+    <h1>Library Book Storage System</h1>
+    <span class="subtitle">using Allocation Methods</span>
+  </div>
+  <div class="header-right">
+    <div class="stat-chip">
+      <span class="num" id="hdr-total">0</span>
+      <span class="lbl">Books</span>
+    </div>
+    <div class="stat-chip">
+      <span class="num" id="hdr-avail">64</span>
+      <span class="lbl">Free Blocks</span>
+    </div>
+    <div class="stat-chip">
+      <span class="num" id="hdr-used">0</span>
+      <span class="lbl">Used Blocks</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-tab="catalog">Book Catalog</button>
+  <button data-tab="contiguous">Contiguous Allocation</button>
+  <button data-tab="linked">Linked Allocation</button>
+  <button data-tab="indexed">Indexed Allocation</button>
+  <button data-tab="about">About &amp; Methods</button>
+</nav>
+
+<div class="wrapper">
+
+  <!-- SEARCH ROW (visible on all tabs) -->
+  <div class="search-row">
+    <div class="search-box" style="flex:2">
+      <svg viewBox="0 0 20 20" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><line x1="13" y1="13" x2="18" y2="18"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by title, author, serial no., genre…" oninput="renderAll()">
+    </div>
+    <select class="filter-sel" id="filterField" onchange="renderAll()">
+      <option value="all">All Fields</option>
+      <option value="sr">Serial No.</option>
+      <option value="title">Title</option>
+      <option value="author">Author</option>
+      <option value="genre">Genre</option>
+      <option value="status">Status</option>
+    </select>
+    <select class="filter-sel" id="filterStatus" onchange="renderAll()">
+      <option value="">All Status</option>
+      <option value="available">Available</option>
+      <option value="issued">Issued</option>
+    </select>
+    <button class="btn btn-amber" onclick="openModal()">+ Add Book</button>
+  </div>
+
+  <!-- ── TAB: CATALOG ── -->
+  <div class="section-tab active" id="tab-catalog">
+    <div class="grid-main">
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Book Registry</h3>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span id="result-count" class="badge">0 books</span>
+              <button class="btn btn-ghost" style="font-size:12px;padding:0.3rem 0.7rem" onclick="sortTable()">Sort</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="setSortCol('sr')">Sr. No <span class="sort-arrow" id="arr-sr"></span></th>
+                  <th onclick="setSortCol('title')">Title / Author <span class="sort-arrow" id="arr-title"></span></th>
+                  <th onclick="setSortCol('genre')">Genre <span class="sort-arrow" id="arr-genre"></span></th>
+                  <th onclick="setSortCol('year')">Year <span class="sort-arrow" id="arr-year"></span></th>
+                  <th>Allocation</th>
+                  <th onclick="setSortCol('status')">Status <span class="sort-arrow" id="arr-status"></span></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="book-tbody"></tbody>
+            </table>
+            <div id="no-results" class="no-results" style="display:none">
+              <strong>No books found</strong>
+              Try different search terms or add a new book.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- Memory Map -->
+        <div class="panel" style="margin-bottom:1rem">
+          <div class="panel-head">
+            <h3>Memory Block Map</h3>
+            <span class="badge badge-amber" id="mem-pct">0% used</span>
+          </div>
+          <div class="mem-grid" id="mem-grid"></div>
+          <div class="legend-row" id="mem-legend">
+            <div class="legend-item"><div class="legend-dot free" style="background:var(--bg2);border:1px solid var(--border)"></div>Free</div>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem">
+          <div class="info-card" style="margin:0">
+            <h4>Available</h4>
+            <p style="font-size:1.6rem;font-family:var(--mono);font-weight:500;color:var(--green)" id="stat-avail">0</p>
+          </div>
+          <div class="info-card" style="margin:0;background:var(--red-l);border-color:rgba(139,32,32,0.12)">
+            <h4 style="color:var(--red)">Issued</h4>
+            <p style="font-size:1.6rem;font-family:var(--mono);font-weight:500;color:var(--red)" id="stat-issued">0</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h4>Current Method</h4>
+          <p id="current-method-desc">Switch tabs to explore different allocation methods.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: CONTIGUOUS ── -->
+  <div class="section-tab" id="tab-contiguous">
+    <div class="grid-main">
+      <div>
+        <div class="panel" style="margin-bottom:1rem">
+          <div class="panel-head"><h3>Contiguous Allocation — Memory Layout</h3><span class="badge">Sequential Blocks</span></div>
+          <div class="mem-grid" id="mem-cont" style="grid-template-columns:repeat(16,1fr)"></div>
+          <div class="legend-row" id="cont-legend"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Allocation Table</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Sr. No</th><th>Title</th><th>Start Block</th><th>Length</th><th>End Block</th></tr></thead>
+              <tbody id="cont-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="info-card">
+          <h4>How it works</h4>
+          <p>Each book occupies a contiguous (consecutive) set of disk blocks. The directory stores only the <strong>start block</strong> and the <strong>length</strong>.</p>
+        </div>
+        <div class="panel" style="padding:1rem">
+          <ul class="method-detail">
+            <li style="color:var(--green)"><strong>Fast sequential access</strong></li>
+            <li style="color:var(--green)"><strong>Simple directory structure</strong></li>
+            <li style="color:var(--red)">External fragmentation over time</li>
+            <li style="color:var(--red)">File size must be known in advance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: LINKED ── -->
+  <div class="section-tab" id="tab-linked">
+    <div class="grid-main">
+      <div>
+        <div class="panel" style="margin-bottom:1rem">
+          <div class="panel-head"><h3>Linked Allocation — Block Chain</h3><span class="badge">Pointer-based</span></div>
+          <div class="chain-vis" id="chain-vis"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Directory Table</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Sr. No</th><th>Title</th><th>Start Block</th><th>End Block</th><th>Blocks</th></tr></thead>
+              <tbody id="linked-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="info-card">
+          <h4>How it works</h4>
+          <p>Each block holds data and a <strong>pointer</strong> to the next block. Blocks can be scattered anywhere on disk — no contiguity required.</p>
+        </div>
+        <div class="panel" style="padding:1rem">
+          <ul class="method-detail">
+            <li style="color:var(--green)">No external fragmentation</li>
+            <li style="color:var(--green)">Dynamic file growth</li>
+            <li style="color:var(--red)">Sequential access only</li>
+            <li style="color:var(--red)">Pointer overhead per block</li>
+            <li style="color:var(--red)">Poor random access time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: INDEXED ── -->
+  <div class="section-tab" id="tab-indexed">
+    <div class="grid-main">
+      <div>
+        <div class="panel" style="margin-bottom:1rem">
+          <div class="panel-head"><h3>Indexed Allocation — Index Blocks</h3><span class="badge">Index Table</span></div>
+          <div class="index-table" id="index-vis"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Directory Table</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Sr. No</th><th>Title</th><th>Index Block</th><th>Data Blocks</th><th>Pointers</th></tr></thead>
+              <tbody id="indexed-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="info-card">
+          <h4>How it works</h4>
+          <p>An <strong>index block</strong> stores all block pointers for a file. The directory just points to the index block, enabling direct access to any data block.</p>
+        </div>
+        <div class="panel" style="padding:1rem">
+          <ul class="method-detail">
+            <li style="color:var(--green)">Supports direct access</li>
+            <li style="color:var(--green)">No external fragmentation</li>
+            <li style="color:var(--green)">Dynamic growth</li>
+            <li style="color:var(--red)">Index block overhead</li>
+            <li style="color:var(--red)">Wasteful for small files</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: ABOUT ── -->
+  <div class="section-tab" id="tab-about">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem">
+      <div class="panel">
+        <div class="panel-head"><h3>Contiguous Allocation</h3><span class="badge">Method 01</span></div>
+        <div style="padding:1.2rem">
+          <p style="font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:1rem">Files are stored in consecutive disk blocks. The OS only needs to know where a file starts and how many blocks it uses.</p>
+          <p style="font-family:var(--mono);font-size:12px;color:var(--ink3);background:var(--bg2);padding:0.6rem 0.8rem;border-radius:4px">Directory entry: (start, length)</p>
+          <div style="margin-top:1rem">
+            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:6px">Analogy</p>
+            <p style="font-size:13.5px;color:var(--ink2)">Like shelving books in a row on continuous shelf space. Easy to find, but you need to reserve the whole shelf in advance.</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Linked Allocation</h3><span class="badge">Method 02</span></div>
+        <div style="padding:1.2rem">
+          <p style="font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:1rem">Each disk block contains data and a pointer to the next block. Blocks for a single file can be dispersed throughout the disk.</p>
+          <p style="font-family:var(--mono);font-size:12px;color:var(--ink3);background:var(--bg2);padding:0.6rem 0.8rem;border-radius:4px">Block: [data | next_ptr]</p>
+          <div style="margin-top:1rem">
+            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:6px">Analogy</p>
+            <p style="font-size:13.5px;color:var(--ink2)">Like a treasure hunt — each shelf tag tells you where the next book chapter is hidden.</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Indexed Allocation</h3><span class="badge">Method 03</span></div>
+        <div style="padding:1.2rem">
+          <p style="font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:1rem">A dedicated index block holds pointers to all data blocks of a file. The directory entry points only to this index block.</p>
+          <p style="font-family:var(--mono);font-size:12px;color:var(--ink3);background:var(--bg2);padding:0.6rem 0.8rem;border-radius:4px">Index block: [ptr0, ptr1, …, ptrN]</p>
+          <div style="margin-top:1rem">
+            <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:6px">Analogy</p>
+            <p style="font-size:13.5px;color:var(--ink2)">Like a book's table of contents — one page lists where every chapter is, so you can jump directly to any section.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1.5rem">
+      <div class="panel-head"><h3>Comparison Summary</h3></div>
+      <div style="overflow-x:auto">
+        <table style="font-size:13px">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Contiguous</th>
+              <th>Linked</th>
+              <th>Indexed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Access Type</td><td>Sequential &amp; Direct</td><td>Sequential only</td><td>Sequential &amp; Direct</td></tr>
+            <tr><td>External Fragmentation</td><td style="color:var(--red)">Yes</td><td style="color:var(--green)">No</td><td style="color:var(--green)">No</td></tr>
+            <tr><td>Internal Fragmentation</td><td style="color:var(--green)">Minimal</td><td style="color:var(--green)">No</td><td style="color:var(--amber)">Yes (index block)</td></tr>
+            <tr><td>Pre-declared Size</td><td style="color:var(--red)">Required</td><td style="color:var(--green)">Not required</td><td style="color:var(--green)">Not required</td></tr>
+            <tr><td>Seek Time</td><td style="color:var(--green)">Minimal</td><td style="color:var(--red)">High</td><td style="color:var(--amber)">Medium</td></tr>
+            <tr><td>Overhead</td><td style="color:var(--green)">None</td><td style="color:var(--amber)">Pointer per block</td><td style="color:var(--amber)">Index block</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<!-- ── MODAL: ADD BOOK ── -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Register New Book</h3>
+      <button class="modal-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="form-grid" id="modal-form">
+      <div class="form-field">
+        <label>Title *</label>
+        <input type="text" id="f-title" placeholder="Book title">
+      </div>
+      <div class="form-field">
+        <label>Author *</label>
+        <input type="text" id="f-author" placeholder="Author name">
+      </div>
+      <div class="form-field">
+        <label>Genre</label>
+        <select id="f-genre">
+          <option>Fiction</option>
+          <option>Non-Fiction</option>
+          <option>Science</option>
+          <option>Technology</option>
+          <option>History</option>
+          <option>Philosophy</option>
+          <option>Mathematics</option>
+          <option>Literature</option>
+          <option>Biography</option>
+          <option>Reference</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Year</label>
+        <input type="number" id="f-year" placeholder="2024" min="1000" max="2099">
+      </div>
+      <div class="form-field">
+        <label>Allocation Method</label>
+        <select id="f-method">
+          <option value="contiguous">Contiguous</option>
+          <option value="linked">Linked</option>
+          <option value="indexed">Indexed</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Blocks Required</label>
+        <input type="number" id="f-blocks" value="3" min="1" max="8">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="addBook()">Register Book</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const COLORS = [
+  '#1a4a6b','#5a2d82','#2d6b4a','#8b3a1a','#1a5a8b','#6b2d5a',
+  '#3a6b1a','#8b1a3a','#2d4a8b','#6b4a1a','#1a6b6b','#8b5a1a',
+  '#4a1a8b','#1a8b3a','#8b1a6b','#3a8b1a'
+];
+
+const GENRES = {
+  'Fiction':'#1a4a6b','Non-Fiction':'#5a2d82','Science':'#2d6b4a',
+  'Technology':'#8b3a1a','History':'#1a5a8b','Philosophy':'#6b2d5a',
+  'Mathematics':'#3a6b1a','Literature':'#8b1a3a','Biography':'#2d4a8b',
+  'Reference':'#6b4a1a'
+};
+
+const TOTAL_BLOCKS = 64;
+
+let books = [
+  {id:1,title:"Operating System Concepts",author:"Silberschatz et al.",genre:"Technology",year:2018,method:"contiguous",blocks:5,startBlock:2,status:"available"},
+  {id:2,title:"The Pragmatic Programmer",author:"Hunt & Thomas",genre:"Technology",year:2019,method:"linked",blocks:4,startBlock:10,status:"issued"},
+  {id:3,title:"Clean Code",author:"Robert C. Martin",genre:"Technology",year:2008,method:"indexed",blocks:3,startBlock:18,status:"available"},
+  {id:4,title:"Sapiens",author:"Yuval Noah Harari",genre:"History",year:2011,method:"contiguous",blocks:6,startBlock:24,status:"available"},
+  {id:5,title:"Gödel, Escher, Bach",author:"Douglas Hofstadter",genre:"Philosophy",year:1979,method:"indexed",blocks:4,startBlock:32,status:"issued"},
+  {id:6,title:"The Algorithm Design Manual",author:"Steven Skiena",genre:"Mathematics",year:2008,method:"linked",blocks:5,startBlock:40,status:"available"},
+  {id:7,title:"Structure and Interpretation",author:"Abelson & Sussman",genre:"Technology",year:1996,method:"contiguous",blocks:4,startBlock:48,status:"available"},
+  {id:8,title:"1984",author:"George Orwell",genre:"Fiction",year:1949,method:"linked",blocks:3,startBlock:55,status:"issued"},
+];
+
+let nextId = 9;
+let sortCol = 'sr';
+let sortDir = 1;
+
+function getSr(book) { return 'LBS-' + String(book.id).padStart(4,'0'); }
+
+function genColor(idx) { return COLORS[idx % COLORS.length]; }
+
+function getSearched() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const field = document.getElementById('filterField').value;
+  const status = document.getElementById('filterStatus').value;
+  return books.filter(b => {
+    let match = true;
+    if (q) {
+      const sr = getSr(b).toLowerCase();
+      if (field === 'sr') match = sr.includes(q);
+      else if (field === 'title') match = b.title.toLowerCase().includes(q);
+      else if (field === 'author') match = b.author.toLowerCase().includes(q);
+      else if (field === 'genre') match = b.genre.toLowerCase().includes(q);
+      else if (field === 'status') match = b.status.toLowerCase().includes(q);
+      else match = sr.includes(q)||b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q)||b.genre.toLowerCase().includes(q)||b.status.toLowerCase().includes(q);
+    }
+    if (status) match = match && b.status === status;
+    return match;
+  }).sort((a,b) => {
+    let va = a[sortCol === 'sr' ? 'id' : sortCol];
+    let vb = b[sortCol === 'sr' ? 'id' : sortCol];
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+}
+
+function renderAll() {
+  renderCatalog();
+  renderMemGrid();
+  renderContiguous();
+  renderLinked();
+  renderIndexed();
+  updateHeader();
+}
+
+function updateHeader() {
+  const avail = books.filter(b=>b.status==='available').length;
+  const issued = books.filter(b=>b.status==='issued').length;
+  const usedBlocks = books.reduce((s,b)=>s+b.blocks,0);
+  document.getElementById('hdr-total').textContent = books.length;
+  document.getElementById('hdr-avail').textContent = TOTAL_BLOCKS - usedBlocks;
+  document.getElementById('hdr-used').textContent = usedBlocks;
+  document.getElementById('stat-avail').textContent = avail;
+  document.getElementById('stat-issued').textContent = issued;
+  const pct = Math.round(usedBlocks/TOTAL_BLOCKS*100);
+  document.getElementById('mem-pct').textContent = pct + '% used';
+}
+
+function renderCatalog() {
+  const data = getSearched();
+  const tbody = document.getElementById('book-tbody');
+  const noRes = document.getElementById('no-results');
+  document.getElementById('result-count').textContent = data.length + ' book' + (data.length!==1?'s':'');
+
+  if (!data.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
+  noRes.style.display='none';
+
+  tbody.innerHTML = data.map((b,i) => {
+    const col = genColor(i);
+    const statusClass = b.status==='available' ? 'badge-green' : 'badge-red';
+    const methodLabel = {contiguous:'Contiguous',linked:'Linked',indexed:'Indexed'}[b.method];
+    return `<tr>
+      <td class="sr">${getSr(b)}</td>
+      <td class="title-cell">${b.title}<span class="author">${b.author}</span></td>
+      <td><span class="badge" style="background:${col}22;color:${col}">${b.genre}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${b.year}</td>
+      <td class="alloc-cell"><span class="badge" style="color:var(--ink3)">${methodLabel} · ${b.blocks} blk</span></td>
+      <td><span class="badge ${statusClass}">${b.status}</span></td>
+      <td style="display:flex;gap:5px;padding:0.65rem 0.9rem">
+        <button class="btn" style="font-size:11px;padding:0.3rem 0.6rem;background:${b.status==='available'?'var(--amber-ll)':'var(--green-l)'};color:${b.status==='available'?'var(--amber)':'var(--green)'};border-color:transparent" onclick="toggleStatus(${b.id})">${b.status==='available'?'Issue':'Return'}</button>
+        <button class="btn btn-danger" onclick="removeBook(${b.id})">&#10005;</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMemGrid() {
+  const grid = document.getElementById('mem-grid');
+  const legend = document.getElementById('mem-legend');
+  const blockMap = {};
+  books.forEach((b,i)=>{
+    for(let j=0;j<b.blocks;j++) {
+      const blk = (b.startBlock+j) % TOTAL_BLOCKS;
+      blockMap[blk] = {color: genColor(i), label: String(b.id)};
+    }
+  });
+  grid.innerHTML = '';
+  for(let i=0;i<TOTAL_BLOCKS;i++){
+    const d = document.createElement('div');
+    d.className = 'mem-block ' + (blockMap[i]?'used':'free');
+    d.textContent = blockMap[i] ? blockMap[i].label : i;
+    if(blockMap[i]) d.style.background = blockMap[i].color;
+    d.title = blockMap[i] ? `Block ${i} — Book ${blockMap[i].label}` : `Block ${i} (free)`;
+    grid.appendChild(d);
+  }
+  legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:var(--bg2);border:1px solid var(--border)"></div>Free</div>' +
+    books.map((b,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${genColor(i)}"></div>${b.id}</div>`).join('');
+}
+
+function renderContiguous() {
+  const grid = document.getElementById('mem-cont');
+  const tbody = document.getElementById('cont-tbody');
+  const legend = document.getElementById('cont-legend');
+  const blockMap = {};
+  const contBooks = books.filter(b=>b.method==='contiguous');
+  contBooks.forEach((b,i)=>{
+    for(let j=0;j<b.blocks;j++) blockMap[(b.startBlock+j)%TOTAL_BLOCKS]={color:genColor(books.indexOf(b)),book:b};
+  });
+  grid.innerHTML='';
+  for(let i=0;i<TOTAL_BLOCKS;i++){
+    const d=document.createElement('div');
+    d.className='mem-block '+(blockMap[i]?'used':'free');
+    d.style.fontSize='8px';
+    d.textContent=i;
+    if(blockMap[i]) d.style.background=blockMap[i].color;
+    grid.appendChild(d);
+  }
+  legend.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:var(--bg2);border:1px solid var(--border)"></div>Free</div>'+
+    contBooks.map(b=>`<div class="legend-item"><div class="legend-dot" style="background:${genColor(books.indexOf(b))}"></div>${b.title.split(' ')[0]}</div>`).join('');
+  tbody.innerHTML = contBooks.map(b=>`<tr>
+    <td class="sr">${getSr(b)}</td>
+    <td>${b.title}</td>
+    <td><span style="font-family:var(--mono);background:var(--bg2);padding:2px 6px;border-radius:3px;font-size:11px">${b.startBlock}</span></td>
+    <td><span class="badge">${b.blocks}</span></td>
+    <td><span style="font-family:var(--mono);background:var(--bg2);padding:2px 6px;border-radius:3px;font-size:11px">${b.startBlock+b.blocks-1}</span></td>
+  </tr>`).join('') || '<tr><td colspan="5" class="no-results" style="padding:1.5rem;text-align:center;color:var(--ink3)">No contiguous allocations</td></tr>';
+}
+
+function renderLinked() {
+  const vis = document.getElementById('chain-vis');
+  const tbody = document.getElementById('linked-tbody');
+  const linkedBooks = books.filter(b=>b.method==='linked');
+  vis.innerHTML = linkedBooks.map((b,i)=>{
+    const col = genColor(books.indexOf(b));
+    let nodes = `<div class="chain-row">`;
+    nodes += `<div style="font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:60px;margin-right:6px">${getSr(b)}</div>`;
+    for(let j=0;j<b.blocks;j++){
+      const blk=(b.startBlock+j)%TOTAL_BLOCKS;
+      nodes+=`<div class="chain-node" style="background:${col}">
+        <div style="font-size:9px;opacity:0.7">BLK ${blk}</div>
+        <div>${j===0?b.title.split(' ')[0]:'data'}</div>
+        <div style="font-size:9px;opacity:0.6">next→${j<b.blocks-1?(b.startBlock+j+1)%TOTAL_BLOCKS:'NULL'}</div>
+      </div>`;
+      if(j<b.blocks-1) nodes+=`<div class="chain-arrow">→</div>`;
+    }
+    nodes+=`<div class="chain-arrow">→</div><div class="chain-null">NULL</div>`;
+    nodes+='</div>';
+    return nodes;
+  }).join('') || '<p style="padding:1rem;color:var(--ink3);font-size:13px">No linked allocations yet.</p>';
+  tbody.innerHTML=linkedBooks.map(b=>`<tr>
+    <td class="sr">${getSr(b)}</td>
+    <td>${b.title}</td>
+    <td><span style="font-family:var(--mono);font-size:11px;background:var(--bg2);padding:2px 6px;border-radius:3px">${b.startBlock}</span></td>
+    <td><span style="font-family:var(--mono);font-size:11px;background:var(--bg2);padding:2px 6px;border-radius:3px">${(b.startBlock+b.blocks-1)%TOTAL_BLOCKS}</span></td>
+    <td><span class="badge">${b.blocks}</span></td>
+  </tr>`).join('') || '<tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--ink3)">No linked allocations</td></tr>';
+}
+
+function renderIndexed() {
+  const vis = document.getElementById('index-vis');
+  const tbody = document.getElementById('indexed-tbody');
+  const indexedBooks = books.filter(b=>b.method==='indexed');
+  if(!indexedBooks.length){ vis.innerHTML='<p style="color:var(--ink3);font-size:13px;grid-column:1/-1;padding:0.5rem">No indexed allocations yet.</p>'; }
+  else {
+    const idxBlock = `<div class="index-block">
+      <div class="index-block-head">Index Directory</div>
+      ${indexedBooks.map((b,i)=>{
+        const idxBlk = (b.startBlock-1+TOTAL_BLOCKS)%TOTAL_BLOCKS;
+        return `<div class="index-entry" style="font-size:11px">
+          <span style="color:var(--ink2)">${getSr(b)}</span>
+          <span class="ptr">→ ${idxBlk}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+    const dataBlocks = indexedBooks.map((b,i)=>{
+      const col = genColor(books.indexOf(b));
+      const idxBlk=(b.startBlock-1+TOTAL_BLOCKS)%TOTAL_BLOCKS;
+      const ptrs=[];
+      for(let j=0;j<b.blocks;j++) ptrs.push((b.startBlock+j)%TOTAL_BLOCKS);
+      return `<div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">${getSr(b)} · ${b.title.substring(0,20)}</div>
+        <div class="data-block" style="background:${col};margin-bottom:4px">
+          <div class="blk-id">INDEX BLK ${idxBlk}</div>
+          <div>${ptrs.map(p=>`→${p}`).join(' ')}</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${ptrs.map(p=>`<div class="data-block" style="background:${col}cc;min-width:60px"><div class="blk-id">DATA ${p}</div></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    vis.innerHTML = idxBlock + `<div style="display:flex;flex-direction:column;gap:12px">${dataBlocks}</div>`;
+  }
+  tbody.innerHTML=indexedBooks.map(b=>{
+    const idxBlk=(b.startBlock-1+TOTAL_BLOCKS)%TOTAL_BLOCKS;
+    const ptrs=[];for(let j=0;j<b.blocks;j++)ptrs.push((b.startBlock+j)%TOTAL_BLOCKS);
+    return `<tr>
+      <td class="sr">${getSr(b)}</td>
+      <td>${b.title}</td>
+      <td><span style="font-family:var(--mono);background:var(--amber-ll);color:var(--amber);padding:2px 7px;border-radius:3px;font-size:11px">${idxBlk}</span></td>
+      <td><span class="badge">${b.blocks}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--ink3)">[${ptrs.join(', ')}]</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--ink3)">No indexed allocations</td></tr>';
+}
+
+function setSortCol(col) {
+  if(sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; }
+  ['sr','title','genre','year','status'].forEach(c=>{
+    const el=document.getElementById('arr-'+c);
+    if(el) el.textContent = c===sortCol ? (sortDir===1?'▲':'▼') : '';
+  });
+  renderAll();
+}
+
+function sortTable() {
+  sortDir*=-1;
+  renderAll();
+}
+
+function toggleStatus(id) {
+  const b=books.find(x=>x.id===id);
+  if(!b) return;
+  b.status = b.status==='available'?'issued':'available';
+  renderAll();
+  toast(b.status==='issued'?`"${b.title}" issued.`:`"${b.title}" returned.`);
+}
+
+function removeBook(id) {
+  const b=books.find(x=>x.id===id);
+  if(!b) return;
+  books=books.filter(x=>x.id!==id);
+  renderAll();
+  toast(`"${b.title}" removed from registry.`);
+}
+
+function openModal() {
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('f-title').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
+
+function addBook() {
+  const title=document.getElementById('f-title').value.trim();
+  const author=document.getElementById('f-author').value.trim();
+  if(!title||!author){ toast('Title and Author are required.'); return; }
+  const genre=document.getElementById('f-genre').value;
+  const year=parseInt(document.getElementById('f-year').value)||2024;
+  const method=document.getElementById('f-method').value;
+  const blocks=Math.max(1,Math.min(8,parseInt(document.getElementById('f-blocks').value)||3));
+  const usedBlocks=new Set();
+  books.forEach(b=>{for(let j=0;j<b.blocks;j++)usedBlocks.add((b.startBlock+j)%TOTAL_BLOCKS);});
+  let start=0;
+  for(let i=0;i<TOTAL_BLOCKS;i++){
+    let ok=true;
+    for(let j=0;j<blocks;j++) if(usedBlocks.has((i+j)%TOTAL_BLOCKS)){ok=false;break;}
+    if(ok){start=i;break;}
+  }
+  books.push({id:nextId++,title,author,genre,year,method,blocks,startBlock:start,status:'available'});
+  closeModal();
+  renderAll();
+  document.getElementById('f-title').value='';
+  document.getElementById('f-author').value='';
+  document.getElementById('f-year').value='';
+  toast(`"${title}" added successfully.`);
+}
+
+let toastTimer;
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// Tab switching
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section-tab').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Keyboard shortcut
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('searchInput').focus();}
+  if(e.key==='Escape') closeModal();
+});
+
+renderAll();
+</script>
+</body>
+</html>
